@@ -6,7 +6,8 @@ En ligne : https://justin17553-boop.github.io/brigade-anti-nuisible/
 
 ## Structure
 13 pages HTML + `style.css` (styles communs) + `menu.js` (menu mobile)
-+ `rdv.js` (rendez-vous : tableau de créneaux, devis estimatif, mode test)
++ `rdv.js` (rendez-vous : tableau de créneaux d'1 h — matin 7 h–13 h,
+  après-midi 14 h–18 h, filtre matin/après-midi — devis estimatif, mode test)
 + `communes.js` (922 communes officielles des départements 17, 85, 44).
 La page `demandes.html` (non référencée, noindex) affiche les demandes de
 rendez-vous enregistrées en mode test (localStorage de l'appareil).
