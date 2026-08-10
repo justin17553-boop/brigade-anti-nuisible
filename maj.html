@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10203A">
+<title>Mises à jour du site | Brigade Anti-Nuisible</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/png" href="favicon.png">
+<!-- Page de travail du patron, non référencée dans les menus :
+     installe les fichiers de mise à jour préparés par Claude, en les
+     poussant vers le dépôt GitHub avec le jeton déjà mémorisé dans ce
+     navigateur (le même que celui de gestion.html). -->
+<style>
+.zone-depot{
+  border:3px dashed var(--trait);border-radius:var(--rond);padding:34px 20px;
+  text-align:center;color:var(--encre-2);font-weight:600;cursor:pointer;
+  transition:border-color .15s,background .15s;
+}
+.zone-depot.survol{border-color:var(--alerte-2);background:var(--papier)}
+.zone-depot b{display:block;font-size:1.05rem;color:var(--nuit);margin-bottom:6px}
+#liste-maj{list-style:none;margin:18px 0 0;padding:0}
+#liste-maj li{display:flex;justify-content:space-between;gap:10px;padding:8px 4px;border-bottom:1px solid var(--trait);font-size:.94rem}
+#liste-maj .etat-f{font-weight:700;white-space:nowrap;color:var(--encre-2)}
+#liste-maj li.fait .etat-f{color:var(--ok)}
+#liste-maj li.rate .etat-f{color:#C0392B}
+@media (prefers-color-scheme: dark){#liste-maj li.rate .etat-f{color:#F09A93}}
+</style>
+</head>
+<body>
+
+<main id="haut">
+
+<div class="page-hero">
+  <div class="contenu">
+    <nav class="fil" aria-label="Fil d'Ariane"><a href="index.html">Accueil</a> › Mises à jour</nav>
+    <h1>Installer une mise à jour</h1>
+    <p class="chapeau">
+      Quand Claude vous transmet un fichier de mise à jour
+      (<b>maj-….json</b>), déposez-le ci-dessous puis touchez
+      «&nbsp;Installer&nbsp;». C'est tout&nbsp;: le site se met à jour en
+      quelques minutes, sans clé à recopier.
+    </p>
+  </div>
+</div>
+
+<section>
+  <div class="contenu prose">
+
+    <div id="bloc-jeton" style="display:none">
+      <h2>Première utilisation sur cet appareil</h2>
+      <p>
+        Collez votre <b>jeton GitHub</b> une seule fois — le même que sur la
+        page de gestion des créneaux. Il reste enregistré
+        <b>uniquement dans ce navigateur</b>.
+      </p>
+      <div class="formulaire">
+        <div class="champ champ-large">
+          <label for="jeton">Jeton GitHub (commence par github_pat_…)</label>
+          <input id="jeton" type="password" autocomplete="off" placeholder="github_pat_…">
+        </div>
+      </div>
+      <p style="margin-top:12px"><button type="button" class="btn btn-nuit" id="garder-jeton">Enregistrer le jeton sur cet appareil</button></p>
+    </div>
+
+    <div class="zone-depot" id="zone" role="button" tabindex="0">
+      <b>Déposez ici le fichier de mise à jour</b>
+      (ou touchez cette zone pour le choisir)
+      <input id="fichier" type="file" accept=".json,application/json" style="display:none">
+    </div>
+
+    <div id="resume" style="display:none">
+      <h2 id="titre-maj" style="margin-top:26px"></h2>
+      <p id="desc-maj"></p>
+      <ul id="liste-maj"></ul>
+      <div class="gestion-barre">
+        <button type="button" class="btn btn-alerte gros-bouton" id="installer">Installer la mise à jour</button>
+      </div>
+    </div>
+
+    <p><span class="gestion-etat" id="etat"></span></p>
+
+    <div class="encart encart-ok" style="margin-top:26px">
+      <b>Bon à savoir&nbsp;:</b> cette page n'apparaît dans aucun menu — gardez
+      son adresse pour vous. Elle n'installe que des fichiers du site
+      (pages, styles, images)&nbsp;; en cas de coupure, redéposez le fichier et
+      recommencez, rien ne se casse.
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<script>
+(function () {
+  var DEPOT = 'justin17553-boop/brigade-anti-nuisible';
+  var CLE_JETON = 'ban_jeton_github';
+
+  var zone = document.getElementById('zone');
+  var champFichier = document.getElementById('fichier');
+  var resume = document.getElementById('resume');
+  var etat = document.getElementById('etat');
+  var blocJeton = document.getElementById('bloc-jeton');
+  var maj = null;   /* {titre, description, fichiers:[{chemin, b64}]} */
+  var lis = [];
+  var enCours = false;   /* installation en cours : on ignore tout nouveau dépôt */
+
+  function message(texte, classe) {
+    etat.textContent = texte;
+    etat.className = 'gestion-etat' + (classe ? ' ' + classe : '');
+  }
+
+  if (!localStorage.getItem(CLE_JETON)) blocJeton.style.display = '';
+  document.getElementById('garder-jeton').addEventListener('click', function () {
+    var v = document.getElementById('jeton').value.trim();
+    if (v.indexOf('github_pat_') !== 0 && v.indexOf('ghp_') !== 0) {
+      message('Ce jeton ne ressemble pas à un jeton GitHub.', 'erreur');
+      return;
+    }
+    localStorage.setItem(CLE_JETON, v);
+    blocJeton.style.display = 'none';
+    message('Jeton enregistré sur cet appareil ✓', 'ok');
+  });
+
+  /* ── lecture du fichier déposé ── */
+  function chargerFichier(f) {
+    if (!f || enCours) return;
+    var lecteur = new FileReader();
+    lecteur.onload = function () {
+      try {
+        var d = JSON.parse(lecteur.result);
+        if (!d || !Array.isArray(d.fichiers) || !d.fichiers.length) throw new Error();
+        var valide = d.fichiers.every(function (x) {
+          return x && typeof x.b64 === 'string' && /^[A-Za-z0-9._-]+$/.test(x.chemin || '');
+        });
+        if (!valide) throw new Error();
+        maj = d;
+      } catch (e) {
+        maj = null;
+        resume.style.display = 'none';
+        message('Ce fichier n’est pas une mise à jour valide.', 'erreur');
+        return;
+      }
+      document.getElementById('titre-maj').textContent = maj.titre || 'Mise à jour du site';
+      document.getElementById('desc-maj').textContent = maj.description || '';
+      var ul = document.getElementById('liste-maj');
+      ul.innerHTML = '';
+      lis = maj.fichiers.map(function (x) {
+        var li = document.createElement('li');
+        li.innerHTML = '<span>' + x.chemin + '</span><span class="etat-f">prêt</span>';
+        ul.appendChild(li);
+        return li;
+      });
+      resume.style.display = '';
+      message('');
+      resume.scrollIntoView({ behavior: 'smooth' });
+    };
+    lecteur.readAsText(f);
+  }
+
+  zone.addEventListener('click', function () { champFichier.click(); });
+  zone.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') champFichier.click(); });
+  champFichier.addEventListener('change', function () { chargerFichier(champFichier.files[0]); });
+  ['dragover', 'dragenter'].forEach(function (ev) {
+    zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.add('survol'); });
+  });
+  ['dragleave', 'drop'].forEach(function (ev) {
+    zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.remove('survol'); });
+  });
+  zone.addEventListener('drop', function (e) {
+    chargerFichier(e.dataTransfer.files && e.dataTransfer.files[0]);
+  });
+
+  /* ── installation : un fichier après l'autre via l'API GitHub ── */
+  var btn = document.getElementById('installer');
+  function pose(li, classe, texte) {
+    li.className = classe;
+    li.querySelector('.etat-f').textContent = texte;
+  }
+
+  btn.addEventListener('click', function () {
+    if (!maj) return;
+    var jeton = localStorage.getItem(CLE_JETON);
+    if (!jeton) {
+      blocJeton.style.display = '';
+      blocJeton.scrollIntoView({ behavior: 'smooth' });
+      message('Il faut d’abord enregistrer votre jeton (une seule fois).', 'erreur');
+      return;
+    }
+    btn.disabled = true;
+    enCours = true;
+    message('Installation…');
+    var entetes = {
+      'Authorization': 'Bearer ' + jeton,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28'
+    };
+    var i = 0;
+    function suivant() {
+      if (i >= maj.fichiers.length) {
+        btn.disabled = false;
+        enCours = false;
+        message('Installé ✓ — le site se met à jour d’ici quelques minutes.', 'ok');
+        return;
+      }
+      var f = maj.fichiers[i];
+      var li = lis[i];
+      pose(li, 'encours', 'envoi…');
+      var url = 'https://api.github.com/repos/' + DEPOT + '/contents/' + f.chemin;
+      fetch(url, { headers: entetes })
+        .then(function (r) {
+          if (r.status === 401 || r.status === 403) throw new Error('JETON');
+          if (r.status === 404) return null;
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (info) {
+          var corps = {
+            message: (maj.titre || 'Mise à jour du site') + ' (' + f.chemin + ')',
+            content: f.b64
+          };
+          if (info && info.sha) corps.sha = info.sha;
+          return fetch(url, { method: 'PUT', headers: entetes, body: JSON.stringify(corps) });
+        })
+        .then(function (r) {
+          if (r.status === 401 || r.status === 403 || r.status === 404) throw new Error('JETON');
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          pose(li, 'fait', 'installé ✓');
+          i++;
+          suivant();
+        })
+        .catch(function (e) {
+          btn.disabled = false;
+          enCours = false;
+          pose(li, 'rate', 'échec');
+          if (e.message === 'JETON') {
+            localStorage.removeItem(CLE_JETON);
+            blocJeton.style.display = '';
+            blocJeton.scrollIntoView({ behavior: 'smooth' });
+            message('Jeton refusé par GitHub (expiré ou mal réglé). Recréez-en un et collez-le ci-dessus.', 'erreur');
+          } else {
+            message('Échec (' + e.message + ') — touchez à nouveau « Installer » pour reprendre.', 'erreur');
+          }
+        });
+    }
+    suivant();
+  });
+})();
+</script>
+
+</body>
+</html>
