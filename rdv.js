@@ -11,16 +11,14 @@
     var JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
     var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
                 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-    var CRENEAUX = ['8 h – 10 h', '10 h – 12 h', '14 h – 16 h', '16 h – 18 h'];
+    var CRENEAUX = ['7 h – 8 h', '8 h – 9 h', '9 h – 10 h', '10 h – 11 h', '11 h – 12 h', '12 h – 13 h',
+                    '14 h – 15 h', '15 h – 16 h', '16 h – 17 h', '17 h – 18 h'];
+    var NB_MATIN = 6;   /* les 6 premiers créneaux = matin, le reste = après-midi */
     var etat = { jour: null, creneau: null };
 
-    /* ══ DISPONIBILITÉS ══
-       À GÉRER : marquer ici les créneaux déjà pris, au format
-         'AAAA-MM-JJ': ['8 h – 10 h', '14 h – 16 h']
-       ou 'AAAA-MM-JJ': ['*'] pour bloquer toute la journée.
-       (En attendant un agenda connecté, cette liste se met à jour à la main.) */
     /* Les créneaux bloqués par l'entreprise viennent de disponibilites.js,
-       géré depuis la page privée gestion.html. */
+       géré depuis la page privée gestion.html (format
+       'AAAA-MM-JJ': ['7 h – 8 h'] ou ['*'] pour toute la journée). */
     var INDISPO = (typeof DISPONIBILITES !== 'undefined') ? DISPONIBILITES : {};
 
     /* ── les douze prochains jours ouvrés (lundi–samedi) ── */
@@ -61,6 +59,23 @@
     var btnSuiv = document.getElementById('rdv-sem-suiv');
     var plustot = document.getElementById('rdv-plustot');
 
+    /* filtre d'affichage : toute la journée / matin / après-midi */
+    var filtre = 'tout';
+    var btnsFiltre = document.querySelectorAll('.rdv-filtre button');
+    btnsFiltre.forEach(function (bf) {
+      bf.addEventListener('click', function () {
+        filtre = bf.getAttribute('data-filtre');
+        btnsFiltre.forEach(function (o) { o.classList.toggle('actif', o === bf); });
+        dessiner();
+      });
+    });
+
+    function creneauxVisibles() {
+      if (filtre === 'matin') return CRENEAUX.slice(0, NB_MATIN);
+      if (filtre === 'aprem') return CRENEAUX.slice(NB_MATIN);
+      return CRENEAUX;
+    }
+
     function dessiner() {
       var visibles = jours.slice(page * 6, page * 6 + 6);
       titreSem.textContent = 'Du ' + visibles[0].jourSem + ' ' + visibles[0].num + ' ' + visibles[0].mois +
@@ -81,8 +96,21 @@
       thead.appendChild(ligneTete);
       table.appendChild(thead);
 
+      function separateur(tbody, texte) {
+        var tr = document.createElement('tr');
+        tr.className = 'rdv-sep';
+        var td = document.createElement('td');
+        td.colSpan = visibles.length + 1;
+        td.textContent = texte;
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      }
+
       var tbody = document.createElement('tbody');
-      CRENEAUX.forEach(function (creneau) {
+      creneauxVisibles().forEach(function (creneau) {
+        var ic = CRENEAUX.indexOf(creneau);
+        if (ic === 0 && filtre !== 'aprem') separateur(tbody, 'Matin');
+        if (ic === NB_MATIN && filtre !== 'matin') separateur(tbody, 'Après-midi');
         var tr = document.createElement('tr');
         var tdLib = document.createElement('td');
         tdLib.textContent = creneau;
