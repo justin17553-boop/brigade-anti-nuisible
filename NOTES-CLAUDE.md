@@ -31,7 +31,13 @@ rendez-vous enregistrées en mode test (localStorage de l'appareil).
 1. Brancher l'envoi réel des demandes de RDV (fonction envoyerDemande()
    dans rdv.js) vers un e-mail ou un serveur — aujourd'hui mode test local.
 2. Afficher téléphone/e-mail (chercher « À VENIR » dans toutes les pages).
-3. Passer DEMO_INDISPO à false dans rdv.js (créneaux « Pris » d'exemple).
-4. Compléter mentions-legales.html (SIRET, adresse, responsable).
-5. Gérer les créneaux réellement pris via INDISPO dans rdv.js.
-6. Supprimer les fichiers Gemini_Generated_Image_*.png devenus inutiles.
+3. Compléter mentions-legales.html (SIRET, adresse, responsable).
+4. Créneaux : gérés par le patron via gestion.html (page privée) qui
+   écrit disponibilites.js par l'API GitHub (jeton fine-grained stocké
+   dans le navigateur du patron uniquement ; oublié et redemandé
+   automatiquement si GitHub le refuse). gestion.html relit l'état par
+   l'API (pas par le site, qui a du retard de build) et verrouille
+   Enregistrer tant que la lecture n'a pas réussi. Côté clients,
+   rendez-vous.html charge disponibilites.js avec un anti-cache par
+   minute (document.write) car GitHub Pages sert en max-age=600.
+5. Supprimer les fichiers Gemini_Generated_Image_*.png devenus inutiles.
