@@ -433,3 +433,21 @@ table.rdv-table{width:100%;border-collapse:collapse;min-width:600px}
   background:var(--papier);border-radius:999px;padding:2px 9px;
 }
 .suggestions button:hover .dep,.suggestions button.active .dep{background:#FDF0EA;color:var(--alerte-2)}
+
+/* ── gestion des créneaux (page privée du patron) ── */
+.cell-ouvert{background:#EAF6F0;color:#1F8A5D}
+.cell-ouvert:hover{outline:2px solid #1F8A5D;outline-offset:-2px}
+.cell-bloque{background:#FDECEC;color:#C0392B}
+.cell-bloque:hover{outline:2px solid #C0392B;outline-offset:-2px}
+.rdv-table th button{
+  font:inherit;font-size:.68rem;font-weight:700;letter-spacing:.4px;
+  border:0;background:var(--papier);color:var(--encre-2);
+  border-radius:6px;padding:3px 8px;margin-top:4px;cursor:pointer;
+}
+.rdv-table th button:hover{background:#FDECEC;color:#C0392B}
+.gestion-barre{
+  display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:20px;
+}
+.gestion-etat{font-size:.9rem;font-weight:600;color:var(--encre-2)}
+.gestion-etat.ok{color:#1F8A5D}
+.gestion-etat.erreur{color:#C0392B}
