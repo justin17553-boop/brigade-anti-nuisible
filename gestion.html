@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10203A">
+<title>Gestion des créneaux | Brigade Anti-Nuisible</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/png" href="favicon.png">
+<!-- Page de travail du patron, non référencée dans les menus :
+     ouvre et bloque les créneaux visibles par les clients sur
+     rendez-vous.html, en réécrivant disponibilites.js via l'API GitHub. -->
+</head>
+<body>
+
+<main id="haut">
+
+<div class="page-hero">
+  <div class="contenu">
+    <nav class="fil" aria-label="Fil d'Ariane"><a href="index.html">Accueil</a> › Gestion des créneaux</nav>
+    <h1>Vos créneaux de rendez-vous</h1>
+    <p class="chapeau">
+      Touchez une case pour la basculer entre <b>Ouvert</b> (verte, réservable par
+      les clients) et <b>Bloqué</b> (rouge, affichée «&nbsp;Pris&nbsp;»). Touchez
+      «&nbsp;bloquer&nbsp;» sous une date pour fermer la journée entière.
+      Puis <b>Enregistrer</b>&nbsp;: le site se met à jour en quelques minutes.
+    </p>
+  </div>
+</div>
+
+<section>
+  <div class="contenu prose">
+
+    <div class="encart encart-alerte">
+      <b>Page privée</b> — elle n'apparaît dans aucun menu du site. Gardez son
+      adresse pour vous. Les clients, eux, ne voient que le tableau de la page
+      «&nbsp;Prendre rendez-vous&nbsp;».
+    </div>
+
+    <div id="bloc-jeton" style="display:none">
+      <h2>Première utilisation sur cet appareil</h2>
+      <p>
+        Pour que cette page puisse publier vos choix, collez ici votre
+        <b>jeton GitHub</b> (créé une seule fois — voir le mode d'emploi transmis
+        par Claude). Il reste enregistré <b>uniquement dans ce navigateur</b>.
+      </p>
+      <div class="formulaire">
+        <div class="champ champ-large">
+          <label for="jeton">Jeton GitHub (commence par github_pat_…)</label>
+          <input id="jeton" type="password" autocomplete="off" placeholder="github_pat_…">
+        </div>
+      </div>
+      <p style="margin-top:12px"><button type="button" class="btn btn-nuit" id="garder-jeton">Enregistrer le jeton sur cet appareil</button></p>
+    </div>
+
+    <div class="rdv-sem-nav">
+      <button type="button" id="sem-prec" aria-label="Semaine précédente">‹ Précédente</button>
+      <span class="titre-sem" id="sem-titre"></span>
+      <button type="button" id="sem-suiv" aria-label="Semaine suivante">Suivante ›</button>
+    </div>
+    <div class="rdv-table-cadre">
+      <table class="rdv-table" id="table-gestion" aria-label="Créneaux ouverts et bloqués"></table>
+    </div>
+
+    <div class="gestion-barre">
+      <button type="button" class="btn btn-alerte gros-bouton" id="enregistrer">Enregistrer les modifications</button>
+      <span class="gestion-etat" id="etat"></span>
+    </div>
+
+    <div class="encart encart-ok" style="margin-top:26px">
+      <b>Bon à savoir&nbsp;:</b> les journées passées se nettoient toutes seules à
+      l'enregistrement. Un créneau réservé en mode test sur un appareil (page
+      demandes.html) ne bloque que cet appareil&nbsp;: ici, vous gérez ce que
+      <b>tout le monde</b> voit.
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<script src="gestion.js"></script>
+
+</body>
+</html>
