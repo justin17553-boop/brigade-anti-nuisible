@@ -1,6 +1,6 @@
 /* BRIGADE ANTI-NUISIBLE — prise de rendez-vous.
    Le client choisit un créneau dans le tableau des disponibilités
-   (deux semaines, dimanche exclu), laisse ses coordonnées et obtient
+   (deux semaines calendaires du lundi au dimanche), laisse ses coordonnées et obtient
    un récapitulatif avec estimation. */
 (function () {
   function initRdv() {
@@ -21,24 +21,26 @@
        'AAAA-MM-JJ': ['7 h – 8 h'] ou ['*'] pour toute la journée). */
     var INDISPO = (typeof DISPONIBILITES !== 'undefined') ? DISPONIBILITES : {};
 
-    /* ── les douze prochains jours ouvrés (lundi–samedi) ── */
+    /* ── deux semaines calendaires, du lundi au dimanche ;
+          les jours déjà passés restent affichés mais grisés ── */
     var jours = [];
-    var d = new Date();
-    d.setDate(d.getDate() + 1);
-    while (jours.length < 12) {
-      if (d.getDay() !== 0) {
-        var iso = d.getFullYear() + '-' +
-                  String(d.getMonth() + 1).padStart(2, '0') + '-' +
-                  String(d.getDate()).padStart(2, '0');
-        jours.push({
-          iso: iso,
-          jourSem: JOURS[d.getDay()],
-          num: d.getDate(),
-          mois: MOIS[d.getMonth()],
-          libelle: JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()]
-        });
-      }
-      d.setDate(d.getDate() + 1);
+    var aujourdhui = new Date();
+    aujourdhui.setHours(0, 0, 0, 0);
+    var lundi = new Date(aujourdhui);
+    lundi.setDate(lundi.getDate() - ((lundi.getDay() + 6) % 7));
+    for (var k = 0; k < 14; k++) {
+      var d = new Date(lundi);
+      d.setDate(lundi.getDate() + k);
+      jours.push({
+        iso: d.getFullYear() + '-' +
+             String(d.getMonth() + 1).padStart(2, '0') + '-' +
+             String(d.getDate()).padStart(2, '0'),
+        jourSem: JOURS[d.getDay()],
+        num: d.getDate(),
+        mois: MOIS[d.getMonth()],
+        libelle: JOURS[d.getDay()] + ' ' + d.getDate() + ' ' + MOIS[d.getMonth()],
+        passe: d <= aujourdhui   /* réservation possible à partir de demain */
+      });
     }
 
 
@@ -52,7 +54,7 @@
       return !!loc && loc.indexOf(creneau) !== -1;
     }
 
-    /* ── le tableau, six jours par semaine, deux semaines ── */
+    /* ── le tableau, sept jours par semaine, deux semaines ── */
     var page = 0;
     var titreSem = document.getElementById('rdv-sem-titre');
     var btnPrec = document.getElementById('rdv-sem-prec');
@@ -77,11 +79,11 @@
     }
 
     function dessiner() {
-      var visibles = jours.slice(page * 6, page * 6 + 6);
+      var visibles = jours.slice(page * 7, page * 7 + 7);
       titreSem.textContent = 'Du ' + visibles[0].jourSem + ' ' + visibles[0].num + ' ' + visibles[0].mois +
                              ' au ' + visibles[visibles.length - 1].jourSem + ' ' + visibles[visibles.length - 1].num + ' ' + visibles[visibles.length - 1].mois;
       btnPrec.disabled = page === 0;
-      btnSuiv.disabled = (page + 1) * 6 >= jours.length;
+      btnSuiv.disabled = (page + 1) * 7 >= jours.length;
 
       table.innerHTML = '';
       var thead = document.createElement('thead');
@@ -119,7 +121,11 @@
           var td = document.createElement('td');
           var b = document.createElement('button');
           b.type = 'button';
-          if (estPris(j.iso, creneau)) {
+          if (j.passe) {
+            b.className = 'cell cell-passee';
+            b.disabled = true;
+            b.textContent = '—';
+          } else if (estPris(j.iso, creneau)) {
             b.className = 'cell cell-prise';
             b.disabled = true;
             b.textContent = 'Pris';
@@ -146,7 +152,7 @@
     }
 
     btnPrec.addEventListener('click', function () { if (page > 0) { page--; dessiner(); } });
-    btnSuiv.addEventListener('click', function () { if ((page + 1) * 6 < jours.length) { page++; dessiner(); } });
+    btnSuiv.addEventListener('click', function () { if ((page + 1) * 7 < jours.length) { page++; dessiner(); } });
 
     /* « au plus tôt » : pas de case précise, on propose le premier créneau libre */
     plustot.addEventListener('click', function () {
