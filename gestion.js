@@ -10,7 +10,9 @@
   var JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
   var MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
               'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-  var CRENEAUX = ['8 h – 10 h', '10 h – 12 h', '14 h – 16 h', '16 h – 18 h'];
+  var CRENEAUX = ['7 h – 8 h', '8 h – 9 h', '9 h – 10 h', '10 h – 11 h', '11 h – 12 h', '12 h – 13 h',
+                  '14 h – 15 h', '15 h – 16 h', '16 h – 17 h', '17 h – 18 h'];
+  var NB_MATIN = 6;   /* les 6 premiers créneaux = matin, le reste = après-midi */
 
   var bloques = {};          /* iso -> ['*'] ou liste de créneaux */
   var chargeOk = false;      /* l'état actuel a bien été relu depuis GitHub */
@@ -47,12 +49,28 @@
     if (l.length) bloques[iso] = l; else delete bloques[iso];
   }
 
-  function basculerJournee(iso) {
-    if (bloques[iso] && (bloques[iso][0] === '*' || bloques[iso].length === CRENEAUX.length)) {
-      delete bloques[iso];
+  /* groupes de créneaux : matin, après-midi, journée entière */
+  var GROUPES = [
+    { nom: 'matin', liste: CRENEAUX.slice(0, NB_MATIN) },
+    { nom: 'après-midi', liste: CRENEAUX.slice(NB_MATIN) },
+    { nom: 'journée', liste: CRENEAUX.slice() }
+  ];
+
+  function groupeBloque(iso, liste) {
+    return liste.every(function (c) { return estBloque(iso, c); });
+  }
+
+  function basculerGroupe(iso, liste) {
+    var l = bloques[iso] || [];
+    if (l[0] === '*') l = CRENEAUX.slice();
+    if (liste.every(function (c) { return l.indexOf(c) !== -1; })) {
+      /* tout le groupe est indisponible → on le rend disponible */
+      l = l.filter(function (c) { return liste.indexOf(c) === -1; });
     } else {
-      bloques[iso] = ['*'];
+      liste.forEach(function (c) { if (l.indexOf(c) === -1) l.push(c); });
     }
+    if (l.length === CRENEAUX.length) l = ['*'];
+    if (l.length) bloques[iso] = l; else delete bloques[iso];
   }
 
   var table = document.getElementById('table-gestion');
@@ -74,20 +92,34 @@
     visibles.forEach(function (j) {
       var th = document.createElement('th');
       th.scope = 'col';
-      th.innerHTML = j.jourSem + '<b>' + j.num + '</b>' + j.mois + '<br>';
-      var bj = document.createElement('button');
-      bj.type = 'button';
-      var tout = bloques[j.iso] && bloques[j.iso][0] === '*';
-      bj.textContent = tout ? 'rouvrir' : 'bloquer';
-      bj.addEventListener('click', function () { basculerJournee(j.iso); dessiner(); });
-      th.appendChild(bj);
+      th.innerHTML = j.jourSem + '<b>' + j.num + '</b>' + j.mois;
+      GROUPES.forEach(function (g) {
+        var bg = document.createElement('button');
+        bg.type = 'button';
+        bg.textContent = g.nom;
+        bg.className = 'gbtn' + (groupeBloque(j.iso, g.liste) ? ' actif' : '');
+        bg.addEventListener('click', function () { basculerGroupe(j.iso, g.liste); dessiner(); });
+        th.appendChild(bg);
+      });
       tr0.appendChild(th);
     });
     thead.appendChild(tr0);
     table.appendChild(thead);
 
+    function separateur(tbody, texte) {
+      var tr = document.createElement('tr');
+      tr.className = 'rdv-sep';
+      var td = document.createElement('td');
+      td.colSpan = visibles.length + 1;
+      td.textContent = texte;
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+
     var tbody = document.createElement('tbody');
-    CRENEAUX.forEach(function (creneau) {
+    CRENEAUX.forEach(function (creneau, ic) {
+      if (ic === 0) separateur(tbody, 'Matin');
+      if (ic === NB_MATIN) separateur(tbody, 'Après-midi');
       var tr = document.createElement('tr');
       var td0 = document.createElement('td');
       td0.textContent = creneau;
@@ -98,7 +130,7 @@
         b.type = 'button';
         var bloque = estBloque(j.iso, creneau);
         b.className = bloque ? 'cell cell-bloque' : 'cell cell-ouvert';
-        b.textContent = bloque ? 'Bloqué' : 'Ouvert';
+        b.textContent = bloque ? 'Indisponible' : 'Disponible';
         b.addEventListener('click', function () { basculer(j.iso, creneau); dessiner(); });
         td.appendChild(b);
         tr.appendChild(td);
@@ -142,6 +174,13 @@
       var m = base64versTexte(info.content).match(/var DISPONIBILITES = (\{[\s\S]*?\});/);
       if (!m) throw new Error('format inattendu');
       bloques = JSON.parse(m[1]);
+      /* on écarte d'éventuels libellés d'anciennes versions (créneaux de 2 h) */
+      Object.keys(bloques).forEach(function (iso) {
+        var l = bloques[iso];
+        if (l[0] === '*') return;
+        l = l.filter(function (c) { return CRENEAUX.indexOf(c) !== -1; });
+        if (l.length) bloques[iso] = l; else delete bloques[iso];
+      });
       chargeOk = true;
       btnEnregistrer.disabled = false;
       dessiner();
@@ -173,7 +212,7 @@
     });
     return '/* BRIGADE ANTI-NUISIBLE — créneaux bloqués par le patron.\n' +
            '   Ce fichier est modifié automatiquement par la page gestion.html.\n' +
-           '   Format : "AAAA-MM-JJ": ["8 h – 10 h"] ou ["*"] pour toute la journée. */\n' +
+           '   Format : "AAAA-MM-JJ": ["7 h – 8 h"] ou ["*"] pour toute la journée. */\n' +
            'var DISPONIBILITES = ' + JSON.stringify(propre, null, 2) + ';\n';
   }
 
