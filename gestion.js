@@ -21,18 +21,21 @@
   var btnEnregistrer = document.getElementById('enregistrer');
   btnEnregistrer.disabled = true;
 
-  /* ── les douze prochains jours ouvrés ── */
+  /* ── deux semaines calendaires, du lundi au dimanche ;
+        les jours déjà passés restent affichés mais grisés ── */
   var jours = [];
-  var d = new Date();
-  d.setDate(d.getDate() + 1);
-  while (jours.length < 12) {
-    if (d.getDay() !== 0) {
-      jours.push({
-        iso: d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'),
-        jourSem: JOURS[d.getDay()], num: d.getDate(), mois: MOIS[d.getMonth()]
-      });
-    }
-    d.setDate(d.getDate() + 1);
+  var aujourdhui0 = new Date();
+  aujourdhui0.setHours(0, 0, 0, 0);
+  var lundi = new Date(aujourdhui0);
+  lundi.setDate(lundi.getDate() - ((lundi.getDay() + 6) % 7));
+  for (var k = 0; k < 14; k++) {
+    var d = new Date(lundi);
+    d.setDate(lundi.getDate() + k);
+    jours.push({
+      iso: d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'),
+      jourSem: JOURS[d.getDay()], num: d.getDate(), mois: MOIS[d.getMonth()],
+      passe: d <= aujourdhui0   /* modifiable à partir de demain, comme côté clients */
+    });
   }
 
   function estBloque(iso, creneau) {
@@ -79,11 +82,11 @@
   var btnSuiv = document.getElementById('sem-suiv');
 
   function dessiner() {
-    var visibles = jours.slice(page * 6, page * 6 + 6);
+    var visibles = jours.slice(page * 7, page * 7 + 7);
     titreSem.textContent = 'Du ' + visibles[0].jourSem + ' ' + visibles[0].num + ' ' + visibles[0].mois +
                            ' au ' + visibles[visibles.length - 1].jourSem + ' ' + visibles[visibles.length - 1].num + ' ' + visibles[visibles.length - 1].mois;
     btnPrec.disabled = page === 0;
-    btnSuiv.disabled = (page + 1) * 6 >= jours.length;
+    btnSuiv.disabled = (page + 1) * 7 >= jours.length;
 
     table.innerHTML = '';
     var thead = document.createElement('thead');
@@ -97,8 +100,9 @@
         var bg = document.createElement('button');
         bg.type = 'button';
         bg.textContent = g.nom;
-        bg.className = 'gbtn' + (groupeBloque(j.iso, g.liste) ? ' actif' : '');
-        bg.addEventListener('click', function () { basculerGroupe(j.iso, g.liste); dessiner(); });
+        bg.className = 'gbtn' + (!j.passe && groupeBloque(j.iso, g.liste) ? ' actif' : '');
+        if (j.passe) bg.disabled = true;
+        else bg.addEventListener('click', function () { basculerGroupe(j.iso, g.liste); dessiner(); });
         th.appendChild(bg);
       });
       tr0.appendChild(th);
@@ -128,10 +132,16 @@
         var td = document.createElement('td');
         var b = document.createElement('button');
         b.type = 'button';
-        var bloque = estBloque(j.iso, creneau);
-        b.className = bloque ? 'cell cell-bloque' : 'cell cell-ouvert';
-        b.textContent = bloque ? 'Indisponible' : 'Disponible';
-        b.addEventListener('click', function () { basculer(j.iso, creneau); dessiner(); });
+        if (j.passe) {
+          b.className = 'cell cell-passee';
+          b.disabled = true;
+          b.textContent = '—';
+        } else {
+          var bloque = estBloque(j.iso, creneau);
+          b.className = bloque ? 'cell cell-bloque' : 'cell cell-ouvert';
+          b.textContent = bloque ? 'Indisponible' : 'Disponible';
+          b.addEventListener('click', function () { basculer(j.iso, creneau); dessiner(); });
+        }
         td.appendChild(b);
         tr.appendChild(td);
       });
@@ -141,7 +151,7 @@
   }
 
   btnPrec.addEventListener('click', function () { if (page > 0) { page--; dessiner(); } });
-  btnSuiv.addEventListener('click', function () { if ((page + 1) * 6 < jours.length) { page++; dessiner(); } });
+  btnSuiv.addEventListener('click', function () { if ((page + 1) * 7 < jours.length) { page++; dessiner(); } });
 
   /* ── charger l'état actuel — depuis l'API GitHub directement, car la
         copie servie par le site peut avoir plusieurs minutes de retard.
