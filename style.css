@@ -14,6 +14,8 @@
   --encre:#1C2733;
   --encre-2:#54637A;
   --trait:#E3E8EF;
+  --nuit-fond:#10203A;   /* bleu nuit utilisé comme FOND (identique jour et nuit) */
+  --nuit-fond-2:#1B3357;
   --rond:14px;
   --ombre:0 10px 30px rgba(16,32,58,.10);
 }
@@ -28,7 +30,7 @@ a{color:inherit}
 .contenu{max-width:1100px;margin:0 auto;padding:0 20px}
 
 /* ── Accessibilité : lien d'évitement ── */
-.evitement{position:absolute;left:-9999px;top:0;background:var(--nuit);color:#fff;padding:10px 16px;border-radius:0 0 10px 0;z-index:99}
+.evitement{position:absolute;left:-9999px;top:0;background:var(--nuit-fond);color:#fff;padding:10px 16px;border-radius:0 0 10px 0;z-index:99}
 .evitement:focus{left:0}
 
 /* ══ EN-TÊTE ══ */
@@ -59,8 +61,8 @@ nav.principal a.actif{background:var(--papier);color:var(--alerte-2)}
 .btn-alerte:hover{background:#A93A1B}
 .btn-clair{background:var(--blanc);color:var(--nuit);border:2px solid var(--trait)}
 .btn-clair:hover{border-color:var(--nuit)}
-.btn-nuit{background:var(--nuit);color:#fff}
-.btn-nuit:hover{background:var(--nuit-2)}
+.btn-nuit{background:var(--nuit-fond);color:#fff}
+.btn-nuit:hover{background:var(--nuit-fond-2)}
 .gros-bouton{font-size:1.15rem}
 .cta-entete{white-space:nowrap}
 .burger{display:none;margin-left:auto;background:none;border:0;cursor:pointer;padding:8px}
@@ -74,7 +76,7 @@ nav.principal a.actif{background:var(--papier);color:var(--alerte-2)}
   background:
     radial-gradient(1000px 500px at 85% -10%, rgba(228,87,46,.16), transparent 60%),
     radial-gradient(800px 400px at -10% 110%, rgba(31,138,93,.12), transparent 55%),
-    linear-gradient(160deg, var(--nuit) 0%, var(--nuit-2) 100%);
+    linear-gradient(160deg, var(--nuit-fond) 0%, var(--nuit-fond-2) 100%);
   color:#fff;overflow:hidden;
 }
 .heros-grille{display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center;padding:72px 0 64px}
@@ -94,7 +96,7 @@ nav.principal a.actif{background:var(--papier);color:var(--alerte-2)}
 .heros-visuel svg,.heros-visuel img{width:min(330px,80%);height:auto;filter:drop-shadow(0 20px 40px rgba(0,0,0,.35))}
 
 /* ── bandeau de réassurance sous le héros ── */
-.reassurance{background:var(--nuit);border-top:1px solid rgba(255,255,255,.08)}
+.reassurance{background:var(--nuit-fond);border-top:1px solid rgba(255,255,255,.08)}
 .reassurance .contenu{
   display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px 20px;
 }
@@ -105,7 +107,7 @@ nav.principal a.actif{background:var(--papier);color:var(--alerte-2)}
 .page-hero{
   background:
     radial-gradient(900px 400px at 90% -20%, rgba(228,87,46,.14), transparent 60%),
-    linear-gradient(160deg, var(--nuit) 0%, var(--nuit-2) 100%);
+    linear-gradient(160deg, var(--nuit-fond) 0%, var(--nuit-fond-2) 100%);
   color:#fff;padding:52px 0 46px;
 }
 .fil{font-size:.85rem;color:#AFBDD3;margin-bottom:16px}
@@ -201,7 +203,7 @@ section{padding:72px 0}
   counter-increment:etape;content:counter(etape);
   display:flex;align-items:center;justify-content:center;
   width:38px;height:38px;border-radius:50%;margin-bottom:14px;
-  background:var(--nuit);color:#fff;font-weight:800;font-size:1.05rem;
+  background:var(--nuit-fond);color:#fff;font-weight:800;font-size:1.05rem;
 }
 .etape h3{font-size:1rem;font-weight:800;color:var(--nuit);margin-bottom:6px}
 .etape p{font-size:.9rem;color:var(--encre-2)}
@@ -237,7 +239,7 @@ section{padding:72px 0}
 
 /* ── appel final (accueil) ── */
 .appel-final{
-  background:linear-gradient(150deg,var(--nuit),var(--nuit-2));color:#fff;
+  background:linear-gradient(150deg,var(--nuit-fond),var(--nuit-fond-2));color:#fff;
   border-radius:20px;padding:52px 40px;text-align:center;
   box-shadow:var(--ombre);
 }
@@ -253,7 +255,7 @@ section{padding:72px 0}
 
 /* ── bande d'appel en bas des pages intérieures ── */
 .bande-cta{
-  background:linear-gradient(150deg,var(--nuit),var(--nuit-2));color:#fff;
+  background:linear-gradient(150deg,var(--nuit-fond),var(--nuit-fond-2));color:#fff;
   border-radius:18px;padding:34px 30px;margin-top:52px;
   display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:18px;
 }
@@ -273,7 +275,7 @@ section{padding:72px 0}
 .moyen a:hover{text-decoration:underline}
 
 /* ══ PIED DE PAGE ══ */
-footer{background:var(--nuit);color:#AFBDD3;padding:48px 0 36px;font-size:.88rem}
+footer{background:var(--nuit-fond);color:#AFBDD3;padding:48px 0 36px;font-size:.88rem}
 .pied-haut{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:28px}
 .pied-haut .logo{color:#fff;margin-bottom:12px}
 .pied-haut .logo small{color:#AFBDD3}
@@ -339,7 +341,7 @@ footer{background:var(--nuit);color:#AFBDD3;padding:48px 0 36px;font-size:.88rem
 /* ══ PRISE DE RENDEZ-VOUS ══ */
 .rdv-etape-titre{display:flex;align-items:center;gap:12px;margin:38px 0 16px}
 .rdv-etape-titre .num{
-  flex:none;width:34px;height:34px;border-radius:50%;background:var(--nuit);color:#fff;
+  flex:none;width:34px;height:34px;border-radius:50%;background:var(--nuit-fond);color:#fff;
   display:flex;align-items:center;justify-content:center;font-weight:800;
 }
 .rdv-etape-titre h2{font-size:1.25rem;font-weight:800;color:var(--nuit);letter-spacing:-.3px;margin:0}
@@ -405,7 +407,7 @@ table.rdv-table{width:100%;border-collapse:collapse;min-width:600px}
 
 /* ── estimation de devis en direct ── */
 .rdv-estimation{
-  margin-top:20px;background:linear-gradient(150deg,var(--nuit),var(--nuit-2));
+  margin-top:20px;background:linear-gradient(150deg,var(--nuit-fond),var(--nuit-fond-2));
   color:#fff;border-radius:var(--rond);padding:20px 24px;
 }
 .rdv-estimation .libelle{font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:#AFBDD3;margin-bottom:4px}
@@ -459,10 +461,57 @@ table.rdv-table{width:100%;border-collapse:collapse;min-width:600px}
   background:var(--blanc);color:var(--encre-2);border-radius:999px;padding:7px 16px;cursor:pointer;
 }
 .rdv-filtre button:hover{border-color:var(--nuit)}
-.rdv-filtre button.actif{background:var(--nuit);border-color:var(--nuit);color:#fff}
+.rdv-filtre button.actif{background:var(--nuit-fond);border-color:var(--nuit-fond);color:#fff}
 .gestion-barre{
   display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:20px;
 }
 .gestion-etat{font-size:.9rem;font-weight:600;color:var(--encre-2)}
-.gestion-etat.ok{color:#1F8A5D}
+.gestion-etat.ok{color:var(--ok)}
 .gestion-etat.erreur{color:#C0392B}
+
+/* ── jours passés dans les tableaux de créneaux ── */
+.cell-passee{background:transparent;color:#B7C0CE;cursor:default}
+
+/* ══ MODE NUIT AUTOMATIQUE ══
+   Le site suit le réglage jour/nuit de l'appareil (prefers-color-scheme) :
+   clair le jour, sombre la nuit, sans aucun bouton. Les fonds déjà bleu
+   nuit (héros, pied de page…) utilisent --nuit-fond et ne changent pas. */
+@media (prefers-color-scheme: dark){
+  :root{
+    --nuit:#D9E4F6;        /* les textes "bleu nuit" deviennent clairs */
+    --nuit-2:#B9C9E2;
+    --alerte:#F0764F;
+    --alerte-2:#F08A62;    /* orange éclairci : lisible sur fond sombre */
+    --ok:#57C692;
+    --papier:#0D1522;
+    --blanc:#131E30;
+    --encre:#E6ECF5;
+    --encre-2:#9DAEC6;
+    --trait:#26364E;
+    --ombre:0 10px 30px rgba(0,0,0,.5);
+  }
+  header{background:rgba(15,23,37,.94)}
+  .btn-alerte{background:#C74521;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+  .btn-alerte:hover{background:#A93A1B}
+  .prose p,.prose ul,.prose ol,.liste-coches li{color:#B9C6DA}
+  .liste-coches li::before{background:#153826;color:var(--ok)}
+  .encart-alerte{background:#331F16;border-color:#5C3423;color:#F3C6AF}
+  .encart-ok{background:#122A20;border-color:#1F4A37;color:#ABDFC6}
+  .carte .picto,.carte-service .picto{background:linear-gradient(145deg,#3A2318,#2E1B10)}
+  .fort .coche{background:#153826}
+  .cell-libre,.cell-ouvert{background:#14301F;color:#6BD3A0}
+  .cell-libre[aria-pressed="true"]{background:var(--ok);color:#06281A}
+  .cell-prise{color:#5E6C82}
+  .cell-bloque{background:#3A1A1A;color:#F09A93}
+  .cell-passee{color:#4A5468}
+  .rdv-creneau[aria-pressed="true"]{background:#3A2216;color:#F5A98C;border-color:#F08A62}
+  .rdv-erreur{background:#3A1A1A;border-color:#5C2727;color:#F0B1AC}
+  .suggestions button:hover .dep,.suggestions button.active .dep{background:#3A2216;color:#F5A98C}
+  .gbtn:hover{background:#3A1A1A;color:#F09A93}
+  .rdv-sep td{background:#0F1929;color:#7C8AA5}
+  .devis-flottant{background:#C74521;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+  .gestion-etat.erreur{color:#F09A93}
+  .btn-nuit{background:var(--nuit-fond-2);border:1px solid #3D5378}
+  .etape .num,.etape::before,.rdv-etape-titre .num{background:var(--nuit-fond-2);border:1px solid #3D5378}
+  .rdv-filtre button.actif{background:var(--nuit-fond-2);border-color:#7E96BC}
+}
