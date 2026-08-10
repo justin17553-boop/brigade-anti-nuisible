@@ -1,0 +1,37 @@
+# Brigade Anti-Nuisible — état du projet (passation entre sessions Claude)
+
+Site statique GitHub Pages, publié depuis la branche `main` de
+`justin17553-boop/brigade-anti-nuisible`.
+En ligne : https://justin17553-boop.github.io/brigade-anti-nuisible/
+
+## Structure
+13 pages HTML + `style.css` (styles communs) + `menu.js` (menu mobile)
++ `rdv.js` (rendez-vous : tableau de créneaux, devis estimatif, mode test)
++ `communes.js` (922 communes officielles des départements 17, 85, 44).
+La page `demandes.html` (non référencée, noindex) affiche les demandes de
+rendez-vous enregistrées en mode test (localStorage de l'appareil).
+
+## Décisions du client à respecter
+- AUCUN lien avec ELAN GESTION / TeamOP (autre activité du client).
+- Prestations exactes : rats/souris, cafards, punaises de lit, nids de
+  guêpes, frelons (européens et asiatiques), fourmis, puces. Rien d'autre
+  (pas de pigeons, mites, poissons d'argent).
+- Zone : Charente-Maritime (17), Vendée (85), Loire-Atlantique (44).
+- Pas de téléphone ni d'e-mail affichés tant qu'ils n'existent pas
+  (emplacements marqués « À VENIR » dans le code).
+
+## Tarifs (dans rdv.js)
+- CONFIRMÉS par le client : garantie 3 mois = 45 €, 6 mois = 80 €.
+- À CONFIRMER (posés par Claude, marqués « À AJUSTER ») : grille de base
+  par nuisible, +25 %/+50 % selon surface, +15 %/+35 % selon ampleur,
+  frais de secteur (17 = 0 €, 85 = +20 €, 44 = +40 € — base supposée en 17),
+  +40 € par passage au-delà du premier.
+
+## À faire quand le client le demandera
+1. Brancher l'envoi réel des demandes de RDV (fonction envoyerDemande()
+   dans rdv.js) vers un e-mail ou un serveur — aujourd'hui mode test local.
+2. Afficher téléphone/e-mail (chercher « À VENIR » dans toutes les pages).
+3. Passer DEMO_INDISPO à false dans rdv.js (créneaux « Pris » d'exemple).
+4. Compléter mentions-legales.html (SIRET, adresse, responsable).
+5. Gérer les créneaux réellement pris via INDISPO dans rdv.js.
+6. Supprimer les fichiers Gemini_Generated_Image_*.png devenus inutiles.

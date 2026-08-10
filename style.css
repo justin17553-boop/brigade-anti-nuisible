@@ -40,6 +40,7 @@ header{
 .barre{display:flex;align-items:center;gap:16px;height:72px}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:1.05rem;letter-spacing:.2px;color:var(--nuit)}
 .logo svg{width:38px;height:38px;flex:none}
+.logo img{width:44px;height:auto;flex:none}
 .logo small{display:block;font-weight:600;font-size:.68rem;color:var(--encre-2);letter-spacing:.4px;text-transform:uppercase}
 nav.principal{margin-left:auto;display:flex;gap:4px}
 nav.principal a{
@@ -90,7 +91,7 @@ nav.principal a.actif{background:var(--papier);color:var(--alerte-2)}
 .heros-cta{display:flex;flex-wrap:wrap;gap:14px}
 .heros-note{margin-top:16px;font-size:.86rem;color:#AFBDD3}
 .heros-visuel{display:flex;justify-content:center}
-.heros-visuel svg{width:min(320px,80%);height:auto;filter:drop-shadow(0 20px 40px rgba(0,0,0,.35))}
+.heros-visuel svg,.heros-visuel img{width:min(330px,80%);height:auto;filter:drop-shadow(0 20px 40px rgba(0,0,0,.35))}
 
 /* ── bandeau de réassurance sous le héros ── */
 .reassurance{background:var(--nuit);border-top:1px solid rgba(255,255,255,.08)}
@@ -314,7 +315,7 @@ footer{background:var(--nuit);color:#AFBDD3;padding:48px 0 36px;font-size:.88rem
   .heros p.accroche{margin-left:auto;margin-right:auto}
   .heros-cta{justify-content:center}
   .heros-visuel{order:-1}
-  .heros-visuel svg{width:180px}
+  .heros-visuel svg,.heros-visuel img{width:200px}
   .reassurance .contenu{grid-template-columns:repeat(2,1fr)}
   .grille-services{grid-template-columns:repeat(2,1fr)}
   .grille-etapes,.grille-publics{grid-template-columns:repeat(2,1fr)}
