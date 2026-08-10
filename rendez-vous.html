@@ -323,6 +323,11 @@
 
 <script src="menu.js"></script>
 <script src="communes.js"></script>
+<script>
+/* Charge les créneaux bloqués en contournant le cache (nouvelle adresse
+   chaque minute), pour que les blocages du patron arrivent vite aux clients. */
+document.write('<script src="disponibilites.js?v=' + Math.floor(Date.now() / 60000) + '"><\/script>');
+</script>
 <script src="rdv.js"></script>
 
 </body>
