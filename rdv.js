@@ -19,10 +19,9 @@
          'AAAA-MM-JJ': ['8 h – 10 h', '14 h – 16 h']
        ou 'AAAA-MM-JJ': ['*'] pour bloquer toute la journée.
        (En attendant un agenda connecté, cette liste se met à jour à la main.) */
-    var INDISPO = {};
-    /* À PASSER à false pour la mise en ligne réelle : bloque quelques
-       créneaux d'exemple pour montrer le rendu des cases « Pris ». */
-    var DEMO_INDISPO = true;
+    /* Les créneaux bloqués par l'entreprise viennent de disponibilites.js,
+       géré depuis la page privée gestion.html. */
+    var INDISPO = (typeof DISPONIBILITES !== 'undefined') ? DISPONIBILITES : {};
 
     /* ── les douze prochains jours ouvrés (lundi–samedi) ── */
     var jours = [];
@@ -44,12 +43,6 @@
       d.setDate(d.getDate() + 1);
     }
 
-    if (DEMO_INDISPO) {
-      INDISPO[jours[1].iso] = [CRENEAUX[1], CRENEAUX[2]];
-      INDISPO[jours[2].iso] = [CRENEAUX[0]];
-      INDISPO[jours[4].iso] = ['*'];
-      INDISPO[jours[7].iso] = [CRENEAUX[3]];
-    }
 
     var prisLocal = {};
     try { prisLocal = JSON.parse(localStorage.getItem('ban_indispo') || '{}'); } catch (e) {}
